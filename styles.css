@@ -1,0 +1,17 @@
+body{
+    background: #000;
+    color: blanchedalmond;
+}
+
+header{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+}
+form{
+    display: flex;
+}
+footer{
+    display: flex;
+    width: 50%;
+}
