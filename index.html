@@ -14,6 +14,9 @@
         {% if mensaje %}
             <p style="color: green;">{{ mensaje }}</p>
         {% endif %}
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
 
         <form id="formulario" method="post" action="/">
             {% csrf_token %}

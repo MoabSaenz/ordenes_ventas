@@ -10,6 +10,7 @@ class Orden(models.Model):
     fecha_termino = models.DateField(blank=True, null=True)
     factura = models.IntegerField(blank=True, null=True)
     comentarios = models.TextField(blank=True)
+    pdf = models.FileField(upload_to='pdfs/', blank=True, null=True)
     creado_en = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
