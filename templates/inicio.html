@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inicio</title>
+</head>
+
+<body>
+
+<h1>Sistema de órdenes</h1>
+
+{% if user.is_authenticated %}
+
+    <h2>
+        Bienvenido {{ user.username }}
+    </h2>
+
+    <a href="{% url 'logout' %}">
+        Cerrar sesión
+    </a>
+
+{% endif %}
+
+</body>
+</html>

@@ -17,14 +17,15 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from ordenes import views
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    path('admin/', admin.site.urls),
     path('editar/<int:orden_id>/', views.editar_orden, name='editar_orden'),
     path('eliminar/<int:orden_id>/', views.eliminar_orden, name='eliminar_orden'),
-    path('admin/', admin.site.urls),
+    path('', include('usuarios.urls')),
+    path('', views.home, name='home'),
 ]
 
 if settings.DEBUG:
