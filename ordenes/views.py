@@ -1,6 +1,7 @@
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from .models import Orden
 
 
@@ -8,7 +9,7 @@ from .models import Orden
 def home(request):
     mensaje = None
     error = None
-    ordenes = Orden.objects.order_by('-creado_en')
+    ordenes_qs = Orden.objects.order_by('-creado_en')
 
     if request.method == 'POST':
         try:
@@ -34,7 +35,52 @@ def home(request):
 
         return redirect('home')
 
-    return render(request, 'index.html', {'mensaje': mensaje, 'error': error, 'ordenes': ordenes})
+    search_usuario = request.GET.get('usuario', '').strip()
+    search_orden = request.GET.get('orden', '').strip()
+    search_factura = request.GET.get('factura', '').strip()
+    search_estatus = request.GET.get('estatus', '').strip()
+    fecha_inicio = request.GET.get('fecha_inicio', '').strip()
+    fecha_fin = request.GET.get('fecha_fin', '').strip()
+
+    if search_usuario:
+        ordenes_qs = ordenes_qs.filter(usuario__icontains=search_usuario)
+    if search_orden:
+        ordenes_qs = ordenes_qs.filter(numero_orden__icontains=search_orden)
+    if search_factura:
+        try:
+            ordenes_qs = ordenes_qs.filter(factura=int(search_factura))
+        except ValueError:
+            pass
+    if search_estatus:
+        ordenes_qs = ordenes_qs.filter(estatus__iexact=search_estatus)
+    if fecha_inicio:
+        ordenes_qs = ordenes_qs.filter(fecha__gte=fecha_inicio)
+    if fecha_fin:
+        ordenes_qs = ordenes_qs.filter(fecha__lte=fecha_fin)
+
+    paginator = Paginator(ordenes_qs, 8)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+    result_count = ordenes_qs.count()
+
+    query_params = {
+        'usuario': search_usuario,
+        'orden': search_orden,
+        'factura': search_factura,
+        'estatus': search_estatus,
+        'fecha_inicio': fecha_inicio,
+        'fecha_fin': fecha_fin,
+    }
+
+    return render(request, 'index.html', {
+        'mensaje': mensaje,
+        'error': error,
+        'ordenes': page_obj,
+        'page_obj': page_obj,
+        'query_params': query_params,
+        'result_count': result_count,
+        'request': request,
+    })
 
 
 def editar_orden(request, orden_id):

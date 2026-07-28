@@ -4,60 +4,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Órdenes</title>
+    {% load static %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4">
         <div class="container">
-            <span class="navbar-brand">Sistema de Órdenes</span>
-            <span class="ms-auto text-white">
-                Bienvenido, <strong>{{ user.username }}</strong>
-                <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-light ms-2">Cerrar sesión</a>
-            </span>
+            <span class="navbar-brand fw-bold">Sistema de Órdenes</span>
+            <div class="d-flex align-items-center text-white">
+                <span class="me-3">Bienvenido, <strong>{{ user.username }}</strong></span>
+                <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-light">Cerrar sesión</a>
+            </div>
         </div>
     </nav>
+
     <div class="container py-4 app-shell">
-        <div class="card shadow-sm">
+        <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-                <h2 class="card-title mb-4">Gestión de órdenes</h2>
+                <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                    <div>
+                        <h1 class="h3 mb-2">Gestión de órdenes</h1>
+                        <p class="text-muted mb-0">Filtra por usuario, orden, factura, estatus o fecha y navega rápido entre resultados.</p>
+                    </div>
+                    <div class="text-md-end">
+                        {% if mensaje %}
+                            <div class="alert alert-success mb-0">{{ mensaje }}</div>
+                        {% endif %}
+                        {% if error %}
+                            <div class="alert alert-danger mb-0">{{ error }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                {% if mensaje %}
-                    <div class="alert alert-success">{{ mensaje }}</div>
-                {% endif %}
-                {% if error %}
-                    <div class="alert alert-danger">{{ error }}</div>
-                {% endif %}
-
-                <div class="row g-4">
-                    <div class="col-lg-5">
-                        <h5>{% if editando %}Editar orden{% else %}Nueva orden{% endif %}</h5>
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h2 class="h5 mb-3">{% if editando %}Editar orden{% else %}Nueva orden{% endif %}</h2>
                         <form id="orden-form" method="post" enctype="multipart/form-data" action="{% if editando %}{% url 'editar_orden' orden.id %}{% else %}{% url 'home' %}{% endif %}">
                             {% csrf_token %}
-                            <div class="mb-2">
+                            <div class="mb-3">
                                 <label class="form-label">Usuario</label>
                                 <input type="text" class="form-control form-control-sm" name="usuario" value="{{ orden.usuario|default:'' }}" required>
                             </div>
-                            <div class="mb-2">
+                            <div class="mb-3">
                                 <label class="form-label">Número de orden</label>
                                 <input type="text" class="form-control form-control-sm" name="orden" value="{{ orden.numero_orden|default:'' }}" required>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-2">
+                            <div class="row g-3">
+                                <div class="col-6">
                                     <label class="form-label">Fecha</label>
                                     <input type="date" class="form-control form-control-sm" name="fecha" value="{{ orden.fecha|default:'' }}">
                                 </div>
-                                <div class="col-md-6 mb-2">
+                                <div class="col-6">
                                     <label class="form-label">Fecha término</label>
                                     <input type="date" class="form-control form-control-sm" name="fecha_termino" value="{{ orden.fecha_termino|default:'' }}">
                                 </div>
                             </div>
-                            <div class="mb-2">
+                            <div class="mb-3 mt-3">
                                 <label class="form-label">Descripción</label>
                                 <input type="text" class="form-control form-control-sm" name="descripcion" value="{{ orden.descripcion|default:'' }}">
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-2">
+                            <div class="row g-3">
+                                <div class="col-6">
                                     <label class="form-label">Estatus</label>
                                     <select class="form-select form-select-sm" name="estatus">
                                         <option value="pendiente" {% if orden.estatus == 'pendiente' %}selected{% endif %}>Pendiente</option>
@@ -65,12 +77,12 @@
                                         <option value="completo" {% if orden.estatus == 'completo' %}selected{% endif %}>Completo</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6 mb-2">
+                                <div class="col-6">
                                     <label class="form-label">Factura</label>
                                     <input type="number" class="form-control form-control-sm" name="factura" value="{{ orden.factura|default:'' }}">
                                 </div>
                             </div>
-                            <div class="mb-2">
+                            <div class="mb-3 mt-3">
                                 <label class="form-label">Adjuntar PDF</label>
                                 <input type="file" class="form-control form-control-sm" name="pdf" accept="application/pdf">
                             </div>
@@ -78,7 +90,7 @@
                                 <label class="form-label">Comentarios</label>
                                 <textarea class="form-control form-control-sm" name="comentarios" rows="3">{{ orden.comentarios|default:'' }}</textarea>
                             </div>
-                            <div class="d-flex gap-2">
+                            <div class="d-flex flex-wrap gap-2">
                                 <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
                                 <button type="button" id="btn-reset" class="btn btn-outline-secondary btn-sm">Limpiar</button>
                                 {% if editando %}
@@ -87,40 +99,132 @@
                             </div>
                         </form>
                     </div>
+                </div>
+            </div>
 
-                    <div class="col-lg-7">
-                        <h5>Registros</h5>
-                        {% if ordenes %}
-                            <div class="list-group">
-                                {% for orden in ordenes %}
-                                    <div class="list-group-item">
-                                        <div class="d-flex justify-content-between align-items-start gap-2">
-                                            <div>
-                                                <strong>#{{ orden.numero_orden }}</strong> - {{ orden.usuario }}<br>
-                                                <small class="text-muted">{{ orden.descripcion }} · {{ orden.estatus }}</small>
-                                                {% if orden.pdf %}
-                                                    <br><a href="{{ orden.pdf.url }}" target="_blank">Ver PDF</a>
-                                                {% endif %}
-                                            </div>
-                                            <div class="btn-group btn-group-sm">
-                                                <a href="{% url 'editar_orden' orden.id %}" class="btn btn-outline-primary">Editar</a>
-                                                <form method="post" action="{% url 'eliminar_orden' orden.id %}">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-outline-danger">Eliminar</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
+            <div class="col-lg-7">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-3">
+                            <div>
+                                <h2 class="h5 mb-1">Registros</h2>
+                                <p class="text-muted mb-0">Usa los filtros para encontrar órdenes rápidamente.</p>
                             </div>
+                            <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm">Limpiar filtros</a>
+                        </div>
+
+                        <form method="get" class="row g-3 align-items-end mb-4 search-panel">
+                            <div class="col-sm-6 col-lg-4">
+                                <label class="form-label">Usuario</label>
+                                <input type="text" class="form-control form-control-sm" name="usuario" value="{{ query_params.usuario }}" placeholder="Nombre de usuario">
+                            </div>
+                            <div class="col-sm-6 col-lg-4">
+                                <label class="form-label">Número de orden</label>
+                                <input type="text" class="form-control form-control-sm" name="orden" value="{{ query_params.orden }}" placeholder="N.º orden">
+                            </div>
+                            <div class="col-sm-6 col-lg-4">
+                                <label class="form-label">Factura</label>
+                                <input type="text" class="form-control form-control-sm" name="factura" value="{{ query_params.factura }}" placeholder="N.º factura">
+                            </div>
+                            <div class="col-sm-6 col-lg-4">
+                                <label class="form-label">Estatus</label>
+                                <select class="form-select form-select-sm" name="estatus">
+                                    <option value="">Todos</option>
+                                    <option value="pendiente" {% if query_params.estatus == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                                    <option value="proceso" {% if query_params.estatus == 'proceso' %}selected{% endif %}>En proceso</option>
+                                    <option value="completo" {% if query_params.estatus == 'completo' %}selected{% endif %}>Completo</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-6 col-lg-4">
+                                <label class="form-label">Fecha inicio</label>
+                                <input type="date" class="form-control form-control-sm" name="fecha_inicio" value="{{ query_params.fecha_inicio }}">
+                            </div>
+                            <div class="col-sm-6 col-lg-4">
+                                <label class="form-label">Fecha fin</label>
+                                <input type="date" class="form-control form-control-sm" name="fecha_fin" value="{{ query_params.fecha_fin }}">
+                            </div>
+                            <div class="col-12 col-lg-4 d-grid">
+                                <button type="submit" class="btn btn-primary btn-sm">Buscar</button>
+                            </div>
+                        </form>
+
+                        {% if ordenes %}
+                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                                <p class="text-muted mb-0">Mostrando {{ page_obj.object_list|length }} de {{ result_count }} órdenes</p>
+                                <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Orden</th>
+                                            <th>Usuario</th>
+                                            <th>Fecha</th>
+                                            <th>Factura</th>
+                                            <th>Estatus</th>
+                                            <th class="text-end">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for orden in ordenes %}
+                                            <tr>
+                                                <td><strong>{{ orden.numero_orden }}</strong><br><small class="text-muted">{{ orden.descripcion|truncatechars:40 }}</small></td>
+                                                <td>{{ orden.usuario }}</td>
+                                                <td>{{ orden.fecha|default:'-' }}</td>
+                                                <td>{{ orden.factura|default:'-' }}</td>
+                                                <td>
+                                                    <span class="badge rounded-pill bg-light text-dark badge-status {% if orden.estatus == 'proceso' %}proceso{% elif orden.estatus == 'completo' %}completo{% endif %}">{{ orden.estatus|capfirst }}</span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <div class="btn-group btn-group-sm" role="group">
+                                                        <a href="{% url 'editar_orden' orden.id %}" class="btn btn-outline-primary">Ver detalles</a>
+                                                        <form method="post" action="{% url 'eliminar_orden' orden.id %}" class="m-0">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-outline-danger">Eliminar</button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <nav aria-label="Paginación de órdenes" class="mt-4">
+                                <ul class="pagination justify-content-end mb-0">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">Anterior</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+                                    {% endif %}
+
+                                    {% for num in page_obj.paginator.page_range %}
+                                        {% if num == page_obj.number %}
+                                            <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                                        {% elif num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
+                                            <li class="page-item"><a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a></li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">Siguiente</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
                         {% else %}
-                            <p class="text-muted">No hay registros aún.</p>
+                            <p class="text-muted mb-0">No se encontraron órdenes con los filtros aplicados.</p>
                         {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <script src="/static/script.js"></script>
+    <script src="{% static 'script.js' %}"></script>
 </body>
 </html>
