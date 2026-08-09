@@ -1,24 +1,10 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Órdenes</title>
-    {% load static %}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-</head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4">
-        <div class="container">
-            <span class="navbar-brand fw-bold">Sistema de Órdenes</span>
-            <div class="d-flex align-items-center text-white">
-                <span class="me-3">Bienvenido, <strong>{{ user.username }}</strong></span>
-                <a href="{% url 'logout' %}" class="btn btn-sm btn-outline-light">Cerrar sesión</a>
-            </div>
-        </div>
-    </nav>
+{% extends 'base.html' %}
 
+{% load static %}
+
+{% block title %}Órdenes{% endblock %}
+
+{% block content %}
     <div class="container py-4 app-shell">
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
@@ -28,6 +14,13 @@
                         <p class="text-muted mb-0">Filtra por usuario, orden, factura, estatus o fecha y navega rápido entre resultados.</p>
                     </div>
                     <div class="text-md-end">
+                        {% if messages %}
+                            <ul class="messages list-unstyled mb-2">
+                                {% for message in messages %}
+                                    <li class="alert alert-warning py-2 px-3 mb-2">{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
                         {% if mensaje %}
                             <div class="alert alert-success mb-0">{{ mensaje }}</div>
                         {% endif %}
@@ -44,6 +37,7 @@
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
                         <h2 class="h5 mb-3">{% if editando %}Editar orden{% else %}Nueva orden{% endif %}</h2>
+                        {% if puede_crear %}
                         <form id="orden-form" method="post" enctype="multipart/form-data" action="{% if editando %}{% url 'editar_orden' orden.id %}{% else %}{% url 'home' %}{% endif %}">
                             {% csrf_token %}
                             <div class="mb-3">
@@ -60,27 +54,31 @@
                                     <input type="date" class="form-control form-control-sm" name="fecha" value="{{ orden.fecha|default:'' }}">
                                 </div>
                                 <div class="col-6">
+                                    <label class="form-label">Fecha factura</label>
+                                    <input type="date" class="form-control form-control-sm" name="fecha_factura" value="{{ orden.fecha_factura|default:'' }}">
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-1">
+                                <div class="col-6">
                                     <label class="form-label">Fecha término</label>
                                     <input type="date" class="form-control form-control-sm" name="fecha_termino" value="{{ orden.fecha_termino|default:'' }}">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Factura</label>
+                                    <input type="number" class="form-control form-control-sm" name="factura" value="{{ orden.factura|default:'' }}">
                                 </div>
                             </div>
                             <div class="mb-3 mt-3">
                                 <label class="form-label">Descripción</label>
                                 <input type="text" class="form-control form-control-sm" name="descripcion" value="{{ orden.descripcion|default:'' }}">
                             </div>
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <label class="form-label">Estatus</label>
-                                    <select class="form-select form-select-sm" name="estatus">
-                                        <option value="pendiente" {% if orden.estatus == 'pendiente' %}selected{% endif %}>Pendiente</option>
-                                        <option value="proceso" {% if orden.estatus == 'proceso' %}selected{% endif %}>En proceso</option>
-                                        <option value="completo" {% if orden.estatus == 'completo' %}selected{% endif %}>Completo</option>
-                                    </select>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label">Factura</label>
-                                    <input type="number" class="form-control form-control-sm" name="factura" value="{{ orden.factura|default:'' }}">
-                                </div>
+                            <div class="mb-3">
+                                <label class="form-label">Estatus</label>
+                                <select class="form-select form-select-sm" name="estatus">
+                                    <option value="pendiente" {% if orden.estatus == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                                    <option value="proceso" {% if orden.estatus == 'proceso' %}selected{% endif %}>En proceso</option>
+                                    <option value="completo" {% if orden.estatus == 'completo' %}selected{% endif %}>Completo</option>
+                                </select>
                             </div>
                             <div class="mb-3 mt-3">
                                 <label class="form-label">Adjuntar PDF</label>
@@ -98,6 +96,9 @@
                                 {% endif %}
                             </div>
                         </form>
+                        {% else %}
+                        <div class="alert alert-secondary mb-0">Solo tienes permisos de consulta en este módulo.</div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -111,6 +112,13 @@
                                 <p class="text-muted mb-0">Usa los filtros para encontrar órdenes rápidamente.</p>
                             </div>
                             <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm">Limpiar filtros</a>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-sm-6 col-md-4">
+                                <label class="form-label">Fecha factura</label>
+                                <input type="date" class="form-control form-control-sm" name="fecha_factura" value="{{ query_params.fecha_factura }}">
+                            </div>
                         </div>
 
                         <form method="get" class="row g-3 align-items-end mb-4 search-panel">
@@ -160,6 +168,7 @@
                                             <th>Orden</th>
                                             <th>Usuario</th>
                                             <th>Fecha</th>
+                                            <th>Fecha factura</th>
                                             <th>Factura</th>
                                             <th>Estatus</th>
                                             <th class="text-end">Acciones</th>
@@ -171,6 +180,7 @@
                                                 <td><strong>{{ orden.numero_orden }}</strong><br><small class="text-muted">{{ orden.descripcion|truncatechars:40 }}</small></td>
                                                 <td>{{ orden.usuario }}</td>
                                                 <td>{{ orden.fecha|default:'-' }}</td>
+                                                <td>{{ orden.fecha_factura|default:'-' }}</td>
                                                 <td>{{ orden.factura|default:'-' }}</td>
                                                 <td>
                                                     <span class="badge rounded-pill bg-light text-dark badge-status {% if orden.estatus == 'proceso' %}proceso{% elif orden.estatus == 'completo' %}completo{% endif %}">{{ orden.estatus|capfirst }}</span>
@@ -178,10 +188,12 @@
                                                 <td class="text-end">
                                                     <div class="btn-group btn-group-sm" role="group">
                                                         <a href="{% url 'editar_orden' orden.id %}" class="btn btn-outline-primary">Ver detalles</a>
+                                                        {% if puede_eliminar %}
                                                         <form method="post" action="{% url 'eliminar_orden' orden.id %}" class="m-0">
                                                             {% csrf_token %}
                                                             <button type="submit" class="btn btn-outline-danger">Eliminar</button>
                                                         </form>
+                                                        {% endif %}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -225,6 +237,7 @@
             </div>
         </div>
     </div>
+{% endblock %}
     <script src="{% static 'script.js' %}"></script>
 </body>
 </html>

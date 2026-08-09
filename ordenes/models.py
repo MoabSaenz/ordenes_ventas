@@ -5,6 +5,7 @@ class Orden(models.Model):
     usuario = models.CharField(max_length=100)
     numero_orden = models.CharField(max_length=50)
     fecha = models.DateField(blank=True, null=True)
+    fecha_factura = models.DateField(blank=True, null=True)
     descripcion = models.TextField(blank=True)
     estatus = models.CharField(max_length=20, default='pendiente')
     fecha_termino = models.DateField(blank=True, null=True)
@@ -15,3 +16,11 @@ class Orden(models.Model):
 
     def __str__(self):
         return f"{self.numero_orden} - {self.usuario}"
+
+    class Meta:
+        permissions = [
+            ("can_create_order", "Puede crear órdenes"),
+            ("can_edit_order", "Puede editar órdenes"),
+            ("can_delete_order", "Puede eliminar órdenes"),
+            ("can_view_all_orders", "Puede ver todas las órdenes"),
+        ]
