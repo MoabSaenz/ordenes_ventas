@@ -1,123 +1,333 @@
-/* login.css - Estilo tipo Google/Gmail */
+/* ============================================================
+   LOGIN — SISTEMA DE ÓRDENES
+   Escena: taller a oscuras, un único punto de luz sobre
+   el emblema (la "tuerca") que identifica el sistema.
+   ============================================================ */
 
-* {
-    box-sizing: border-box;
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
+  /* Paleta monocromática azul del login */
+  --lg-950: #061a2c;
+  --lg-900: #0b2338;
+  --lg-800: #123252;
+  --lg-700: #1a4a72;
+  --lg-600: #2b6ca3;
+  --lg-500: #4a90c2;
+  --lg-400: #7bb3da;
+  --lg-200: #cfe4f2;
+  --lg-100: #eaf3fa;
 }
 
 body {
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f1f3f4;
-    font-family: 'Roboto', Arial, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(700px 500px at 50% 8%, rgba(123, 179, 218, 0.14), transparent 60%),
+    linear-gradient(180deg, var(--lg-950) 0%, var(--lg-900) 100%) !important;
+  background-attachment: fixed;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Trama de hexágonos muy tenue de fondo, evoca tuercas/tornillería en el taller */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  opacity: 0.05;
+  background-image:
+    linear-gradient(30deg, #ffffff 12%, transparent 12.5%, transparent 87%, #ffffff 87.5%, #ffffff),
+    linear-gradient(150deg, #ffffff 12%, transparent 12.5%, transparent 87%, #ffffff 87.5%, #ffffff),
+    linear-gradient(30deg, #ffffff 12%, transparent 12.5%, transparent 87%, #ffffff 87.5%, #ffffff),
+    linear-gradient(150deg, #ffffff 12%, transparent 12.5%, transparent 87%, #ffffff 87.5%, #ffffff);
+  background-size: 52px 90px;
+  background-position: 0 0, 0 0, 26px 45px, 26px 45px;
+  pointer-events: none;
 }
 
 .login-container {
-    background-color: #ffffff;
-    width: 100%;
-    max-width: 450px;
-    padding: 48px 40px 36px;
-    border: 1px solid #dadce0;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(60, 64, 67, 0.15);
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 20px;
+  padding: 2rem 2.75rem 2.25rem;
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  text-align: center;
+  animation: card-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Encabezado horizontal: emblema junto al título, en vez de apilado,
+   para reducir la altura total de la tarjeta */
+.login-header {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.login-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .login-header {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-container, .login-logo, .login-logo::before, .login-logo svg { animation: none !important; }
+}
+
+/* ---------- Emblema circular (logo) ---------- */
+
+.login-logo {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Anillo metálico exterior tipo dado de llave de tuercas */
+.login-logo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  padding: 3px;
+  background: conic-gradient(from 0deg, var(--lg-400), var(--lg-200), var(--lg-600), var(--lg-800), var(--lg-400));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: ring-spin 7s linear infinite;
+}
+
+@keyframes ring-spin {
+  to { transform: rotate(360deg); }
+}
+
+.login-logo-inner {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(155deg, var(--lg-800), var(--lg-950));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.08), inset 0 -3px 8px rgba(0, 0, 0, 0.5);
+  animation: settle-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both 0.15s;
+}
+
+@keyframes settle-in {
+  from { opacity: 0; transform: rotate(-35deg) scale(0.7); }
+  to   { opacity: 1; transform: rotate(0deg) scale(1); }
+}
+
+.login-logo-inner svg {
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: var(--lg-400);
+  stroke-width: 1.6;
+}
+
+/* Si el usuario reemplaza el SVG por su propio logo (imagen) */
+.login-logo-inner img {
+  width: 56%;
+  height: 56%;
+  object-fit: contain;
 }
 
 .login-container h1 {
-    text-align: center;
-    font-size: 24px;
-    font-weight: 400;
-    color: #202124;
-    margin: 0 0 32px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--lg-900);
+  margin: 0 0 0.15rem;
 }
 
-.messages {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 20px;
+.login-subtitle {
+  color: var(--lg-700);
+  opacity: 0.7;
+  font-size: 0.85rem;
+  margin: 0;
 }
 
-.messages li {
-    background-color: #fce8e6;
-    color: #c5221f;
-    padding: 10px 14px;
-    border-radius: 4px;
-    font-size: 13px;
-    margin-bottom: 8px;
+/* ---------- Mensajes ---------- */
+
+.login-container ul.messages {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  text-align: left;
 }
 
-.login-form div {
-    position: relative;
-    margin-bottom: 24px;
+.login-container ul.messages li {
+  background: #fbe4e4;
+  border-left: 4px solid #d64545;
+  color: #9c2e2e;
+  padding: 0.6rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  animation: card-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ---------- Formulario ---------- */
+
+.login-form {
+  text-align: left;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.1rem;
+}
+
+.login-form button[type="submit"] {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 480px) {
+  .login-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.login-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
 .login-form label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 13px;
-    color: #5f6368;
-    font-weight: 500;
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--lg-700);
 }
 
 .login-form input {
-    width: 100%;
-    padding: 12px 14px;
-    font-size: 15px;
-    color: #202124;
-    border: 1px solid #dadce0;
-    border-radius: 4px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.login-form input:hover {
-    border-color: #202124;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.7rem 0.9rem;
+  border: 1.5px solid var(--lg-200);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--lg-900);
+  background: var(--lg-100);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .login-form input:focus {
-    border-color: #1a73e8;
-    border-width: 2px;
-    padding: 11px 13px; /* compensa el borde más grueso */
-    box-shadow: 0 0 0 1px rgba(26, 115, 232, 0.2);
+  outline: none;
+  border-color: var(--lg-600);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(43, 108, 163, 0.15);
 }
 
-.login-form button {
-    display: block;
-    width: 100%;
-    margin-top: 8px;
-    padding: 12px 24px;
-    background-color: #1a73e8;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0.25px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s, box-shadow 0.2s;
+.login-form button[type="submit"] {
+  margin-top: 0.4rem;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--lg-600), var(--lg-900));
+  box-shadow: 0 10px 20px -8px rgba(11, 35, 56, 0.55);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
-.login-form button:hover {
-    background-color: #1765cc;
-    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+.login-form button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 26px -8px rgba(11, 35, 56, 0.6);
+  filter: brightness(1.08);
 }
 
-.login-form button:active {
-    background-color: #185abc;
+.login-form button[type="submit"]:active {
+  transform: translateY(0);
 }
 
-/* Responsive para pantallas pequeñas */
-@media (max-width: 480px) {
-    .login-container {
-        border: none;
-        box-shadow: none;
-        padding: 32px 24px;
-        border-radius: 0;
-        max-width: 100%;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
+.login-footnote {
+  margin-top: 1.5rem;
+  font-size: 0.76rem;
+  color: var(--lg-500);
+}
+
+@media (max-width: 420px) {
+  .login-container {
+    padding: 2.25rem 1.5rem 1.75rem;
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .login-logo {
+    width: 80px;
+    height: 80px;
+  }
+  .login-logo-inner {
+    width: 66px;
+    height: 66px;
+  }
+  .login-logo-inner svg {
+    width: 34px;
+    height: 34px;
+  }
+  .login-container h1 {
+    font-size: 1.3rem;
+  }
+}
+
+/* Pantallas muy bajas (celular en horizontal): evita que el logo empuje el
+   formulario fuera de vista */
+@media (max-height: 560px) {
+  body {
+    align-items: flex-start;
+    padding-top: 1.25rem;
+  }
+  .login-logo {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 1rem;
+  }
+  .login-logo-inner {
+    width: 54px;
+    height: 54px;
+  }
+  .login-logo-inner svg {
+    width: 26px;
+    height: 26px;
+  }
 }

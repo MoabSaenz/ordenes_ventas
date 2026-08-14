@@ -38,7 +38,7 @@
                     <div class="card-body">
                         <h2 class="h5 mb-3">{% if editando %}Editar orden{% else %}Nueva orden{% endif %}</h2>
                         {% if puede_crear %}
-                        <form id="orden-form" method="post" enctype="multipart/form-data" action="{% if editando %}{% url 'editar_orden' orden.id %}{% else %}{% url 'home' %}{% endif %}">
+                        <form id="orden-form" data-confirm="¿Deseas guardar esta orden?" method="post" enctype="multipart/form-data" action="{% if editando %}{% url 'editar_orden' orden.id %}{% else %}{% url 'home' %}{% endif %}">
                             {% csrf_token %}
                             <div class="mb-3">
                                 <label class="form-label">Usuario</label>
@@ -189,10 +189,7 @@
                                                     <div class="btn-group btn-group-sm" role="group">
                                                         <a href="{% url 'editar_orden' orden.id %}" class="btn btn-outline-primary">Ver detalles</a>
                                                         {% if puede_eliminar %}
-                                                        <form method="post" action="{% url 'eliminar_orden' orden.id %}" class="m-0">
-                                                            {% csrf_token %}
-                                                            <button type="submit" class="btn btn-outline-danger">Eliminar</button>
-                                                        </form>
+                                                        <button type="button" class="btn btn-outline-danger confirm-delete-btn" data-action="{% url 'eliminar_orden' orden.id %}" data-item="orden {{ orden.numero_orden }}">Eliminar</button>
                                                         {% endif %}
                                                     </div>
                                                 </td>
@@ -237,7 +234,30 @@
             </div>
         </div>
     </div>
-{% endblock %}
+
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirmar acción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="confirm-modal-message mb-4">¿Deseas continuar?</p>
+                    <form id="confirmModalForm" method="post" action="">
+                        {% csrf_token %}
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger confirm-modal-accept">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="{% static 'script.js' %}"></script>
 </body>
 </html>
+
+{% endblock %}

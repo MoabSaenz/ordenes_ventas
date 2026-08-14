@@ -9,7 +9,7 @@
             <h1 class="h4 mb-3">Gestión de usuarios</h1>
             <p class="text-muted">Crea usuarios y asígnales un rol.</p>
 
-            <form method="post" class="row g-3 mb-4">
+            <form id="user-create-form" method="post" class="row g-3 mb-4" data-confirm="¿Desea crear este usuario?">
                 {% csrf_token %}
                 <div class="col-md-4">
                     <label class="form-label">Usuario</label>
@@ -39,6 +39,7 @@
                             <th>Usuario</th>
                             <th>Roles</th>
                             <th>Activo</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -47,12 +48,38 @@
                                 <td>{{ user.username }}</td>
                                 <td>{{ user.groups.all|join:", " }}</td>
                                 <td>{{ user.is_active|yesno:"Sí,No" }}</td>
+                                <td>
+                                    <a href="{% url 'editar_usuario' user.id %}" class="btn btn-outline-secondary btn-sm me-2">Editar</a>
+                                    {% if not user.is_superuser and user != request.user %}
+                                        <button type="button" class="btn btn-outline-danger btn-sm confirm-delete-btn" data-bs-toggle="modal" data-bs-target="#confirmModal" data-action="{% url 'eliminar_usuario' user.id %}" data-username="{{ user.username }}">Eliminar</button>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
+    </div>
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmModalLabel">Confirmar acción</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="confirm-modal-message mb-4">¿Desea continuar?</p>
+                            <form id="confirmModalForm" method="post" action="">
+                                {% csrf_token %}
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-danger confirm-modal-accept">Confirmar</button>
+                        </div>
+                    </div>
+                </div>
     </div>
 </div>
 {% endblock %}

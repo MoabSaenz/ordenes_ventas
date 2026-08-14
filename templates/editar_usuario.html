@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Usuario{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column gap-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h1 class="h4 mb-3">Editar Usuario</h1>
+            <p class="text-muted">Modifica el nombre y rol del usuario.</p>
+
+            <form method="post" class="row g-3 mb-4">
+                {% csrf_token %}
+                <div class="col-md-4">
+                    <label class="form-label">Usuario</label>
+                    <input type="text" class="form-control" name="username" value="{{ usuario.username }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Rol</label>
+                    <select class="form-select" name="role" required>
+                        {% for role in roles %}
+                            <option value="{{ role }}" {% if usuario.groups.all|join:', ' == role %}selected{% endif %}>{{ role|capfirst }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                    <a href="{% url 'gestion_usuarios' %}" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

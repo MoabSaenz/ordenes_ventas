@@ -10,7 +10,7 @@ from .decorators import has_permission
 
 def user_role_hint(user):
     """Optional helper: small role hint for backwards compatibility in templates."""
-    if user.is_superuser:
+    if user.is_superuser or user.groups.filter(name='admin').exists():
         return 'admin'
     if user.has_perm('ordenes.can_create_order') and user.has_perm('ordenes.can_edit_order'):
         return 'capturista'
@@ -124,6 +124,7 @@ def home(request):
 @has_permission('ordenes.can_edit_order')
 def editar_orden(request, orden_id):
     orden = get_object_or_404(Orden, pk=orden_id)
+    role = user_role_hint(request.user)
     if not request.user.has_perm('ordenes.can_edit_order'):
         messages.error(request, 'No tienes permisos para editar órdenes.')
         return redirect('home')
