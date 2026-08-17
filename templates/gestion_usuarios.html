@@ -33,7 +33,7 @@
             </form>
 
             <div class="table-responsive">
-                <table class="table align-middle mb-0">
+                <table class="table align-middle mb-0 datatable">
                     <thead class="table-light">
                         <tr>
                             <th>Usuario</th>
@@ -51,7 +51,7 @@
                                 <td>
                                     <a href="{% url 'editar_usuario' user.id %}" class="btn btn-outline-secondary btn-sm me-2">Editar</a>
                                     {% if not user.is_superuser and user != request.user %}
-                                        <button type="button" class="btn btn-outline-danger btn-sm confirm-delete-btn" data-bs-toggle="modal" data-bs-target="#confirmModal" data-action="{% url 'eliminar_usuario' user.id %}" data-username="{{ user.username }}">Eliminar</button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm confirm-delete-btn" data-action="{% url 'eliminar_usuario' user.id %}" data-item="usuario {{ user.username }}">Eliminar</button>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -61,25 +61,6 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="confirmModalLabel">Confirmar acción</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p class="confirm-modal-message mb-4">¿Desea continuar?</p>
-                            <form id="confirmModalForm" method="post" action="">
-                                {% csrf_token %}
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="button" class="btn btn-danger confirm-modal-accept">Confirmar</button>
-                        </div>
-                    </div>
-                </div>
-    </div>
+    {# modal moved to base.html to avoid duplicates and stuck backdrops #}
 </div>
 {% endblock %}

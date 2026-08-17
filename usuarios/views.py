@@ -239,25 +239,63 @@ def actividad(request):
 
 @login_required
 def reportes(request):
-    hoy = timezone.localdate()
-    semana_inicio = hoy - timedelta(days=hoy.weekday())
-    mes_inicio = hoy.replace(day=1)
+    import json
+    from django.db.models import Count
+    from django.db.models.functions import TruncMonth
 
-    pendientes = Orden.objects.filter(estatus='pendiente').count()
-    en_proceso = Orden.objects.filter(estatus='proceso').count()
-    completadas = Orden.objects.filter(estatus='completo').count()
-    facturas = Orden.objects.filter(factura__isnull=False).count()
-    ordenes_dia = Orden.objects.filter(creado_en__date=hoy).count()
-    ordenes_semana = Orden.objects.filter(creado_en__date__gte=semana_inicio, creado_en__date__lte=hoy).count()
-    ordenes_mes = Orden.objects.filter(creado_en__date__gte=mes_inicio, creado_en__date__lte=hoy).count()
+    # Filters
+    usuario_filtro = request.GET.get('usuario', '').strip()
+    fecha_inicio = request.GET.get('fecha_inicio', '').strip()
+    fecha_fin = request.GET.get('fecha_fin', '').strip()
 
-    return render(request, 'reportes.html', {
-        'fecha_actual': hoy,
+    qs = Orden.objects.all()
+    if usuario_filtro:
+        qs = qs.filter(usuario__icontains=usuario_filtro)
+    if fecha_inicio:
+        qs = qs.filter(fecha__gte=fecha_inicio)
+    if fecha_fin:
+        qs = qs.filter(fecha__lte=fecha_fin)
+
+    # KPIs
+    total = qs.count()
+    pendientes = qs.filter(estatus='pendiente').count()
+    en_proceso = qs.filter(estatus='proceso').count()
+    completadas = qs.filter(estatus='completo').count()
+    facturas = qs.filter(factura__isnull=False).count()
+
+    # Monthly aggregation (by fecha if present, else creado_en)
+    month_field = 'fecha' if Orden.objects.filter(fecha__isnull=False).exists() else 'creado_en'
+    monthly_qs = qs.exclude(**{f"{month_field}__isnull": True}).annotate(month=TruncMonth(month_field)).values('month').annotate(count=Count('id')).order_by('month')
+    monthly_labels = [m['month'].strftime('%Y-%m') for m in monthly_qs]
+    monthly_data = [m['count'] for m in monthly_qs]
+
+    # Orders per user
+    users_qs = qs.values('usuario').annotate(count=Count('id')).order_by('-count')
+    user_labels = [u['usuario'] for u in users_qs]
+    user_data = [u['count'] for u in users_qs]
+
+    # Status percentages
+    status_counts = qs.values('estatus').annotate(count=Count('id'))
+    status_map = {s['estatus']: s['count'] for s in status_counts}
+    status_labels = ['pendiente', 'proceso', 'completo']
+    status_data = [status_map.get(k, 0) for k in status_labels]
+
+    context = {
+        'fecha_actual': timezone.localdate(),
+        'total': total,
         'pendientes': pendientes,
         'en_proceso': en_proceso,
         'completadas': completadas,
         'facturas': facturas,
-        'ordenes_dia': ordenes_dia,
-        'ordenes_semana': ordenes_semana,
-        'ordenes_mes': ordenes_mes,
-    })
+        'monthly_labels_json': json.dumps(monthly_labels),
+        'monthly_data_json': json.dumps(monthly_data),
+        'user_labels_json': json.dumps(user_labels),
+        'user_data_json': json.dumps(user_data),
+        'status_labels_json': json.dumps(status_labels),
+        'status_data_json': json.dumps(status_data),
+        'usuario_filtro': usuario_filtro,
+        'fecha_inicio': fecha_inicio,
+        'fecha_fin': fecha_fin,
+    }
+
+    return render(request, 'reportes.html', context)

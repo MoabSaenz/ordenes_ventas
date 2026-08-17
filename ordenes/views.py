@@ -31,7 +31,8 @@ def home(request):
     puede_ver_todas = request.user.has_perm('ordenes.can_view_all_orders')
     # Filtrar órdenes según permiso
     ordenes_qs = Orden.objects.order_by('-creado_en')
-    if not puede_ver_todas:
+    # Permitir visualización a capturistas y lectores (solo lectura), o a quienes tengan permiso global
+    if not (puede_ver_todas or request.user.is_superuser or request.user.groups.filter(name__in=['capturista', 'lector']).exists()):
         ordenes_qs = ordenes_qs.filter(usuario=request.user.username)
 
     if request.method == 'POST':
@@ -153,6 +154,24 @@ def editar_orden(request, orden_id):
         return render(request, 'index.html', {'orden': orden, 'ordenes': ordenes, 'editando': True, 'error': error, 'role': role, 'puede_crear': True, 'puede_editar': True, 'puede_eliminar': role == 'admin'})
 
     return render(request, 'index.html', {'orden': orden, 'ordenes': ordenes, 'editando': True, 'role': role, 'puede_crear': True, 'puede_editar': True, 'puede_eliminar': request.user.has_perm('ordenes.can_delete_order')})
+
+
+@login_required
+def ver_orden(request, orden_id):
+    orden = get_object_or_404(Orden, pk=orden_id)
+    # Permitir ver si es superusuario, tiene permiso global de ver todas, o es propietario
+    if not (request.user.is_superuser or request.user.has_perm('ordenes.can_view_all_orders') or orden.usuario == request.user.username):
+        messages.error(request, 'No tienes permisos para ver esta orden.')
+        return redirect('home')
+
+    can_edit = request.user.has_perm('ordenes.can_edit_order')
+    can_delete = request.user.has_perm('ordenes.can_delete_order')
+
+    return render(request, 'ver_orden.html', {
+        'orden': orden,
+        'can_edit': can_edit,
+        'can_delete': can_delete,
+    })
 
 
 @login_required

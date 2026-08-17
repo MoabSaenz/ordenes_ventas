@@ -14,52 +14,102 @@
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="h6 text-muted">Pendientes</h2>
-                    <p class="display-6 mb-0">{{ pendientes }}</p>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="get" class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label class="form-label">Usuario</label>
+                    <input type="text" name="usuario" value="{{ usuario_filtro }}" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Fecha inicio</label>
+                    <input type="date" name="fecha_inicio" value="{{ fecha_inicio }}" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Fecha fin</label>
+                    <input type="date" name="fecha_fin" value="{{ fecha_fin }}" class="form-control">
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button class="btn btn-primary w-100">Aplicar filtros</button>
+                </div>
+                <div class="col-12 mt-2">
+                    <a href="{% url 'reportes' %}" class="btn btn-outline-secondary">Limpiar filtros</a>
+                </div>
+            </form>
+
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <h2 class="h6">Órdenes por mes</h2>
+                    <div class="chart-wrap">
+                        <canvas id="chart-months"></canvas>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <h2 class="h6">Órdenes por usuario</h2>
+                    <div class="chart-wrap">
+                        <canvas id="chart-users"></canvas>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="h6 text-muted">En proceso</h2>
-                    <p class="display-6 mb-0">{{ en_proceso }}</p>
+
+            <div class="row g-4 mt-3">
+                <div class="col-lg-6">
+                    <h2 class="h6">KPIs</h2>
+                    <div class="chart-wrap small-chart">
+                        <canvas id="chart-status"></canvas>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="h6 text-muted">Completadas</h2>
-                    <p class="display-6 mb-0">{{ completadas }}</p>
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2 class="h6">Totales</h2>
+                            <p class="mb-1">Total órdenes: <strong>{{ total }}</strong></p>
+                            <p class="mb-1">Facturas registradas: <strong>{{ facturas }}</strong></p>
+                            <p class="mb-1">Pendientes: <strong>{{ pendientes }}</strong></p>
+                            <p class="mb-1">En proceso: <strong>{{ en_proceso }}</strong></p>
+                            <p class="mb-0">Completadas: <strong>{{ completadas }}</strong></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="h6 text-muted">Facturas registradas</h2>
-                    <p class="display-5 mb-0">{{ facturas }}</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="h6 text-muted">Órdenes creadas</h2>
-                    <p class="mb-1">Hoy: {{ ordenes_dia }}</p>
-                    <p class="mb-1">Esta semana: {{ ordenes_semana }}</p>
-                    <p class="mb-0">Este mes: {{ ordenes_mes }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const monthsLabels = {{ monthly_labels_json|safe }};
+        const monthsData = {{ monthly_data_json|safe }};
+        const userLabels = {{ user_labels_json|safe }};
+        const userData = {{ user_data_json|safe }};
+        const statusLabels = {{ status_labels_json|safe }};
+        const statusData = {{ status_data_json|safe }};
+
+        // Months line/bar chart
+        const ctxMonths = document.getElementById('chart-months').getContext('2d');
+        new Chart(ctxMonths, {
+            type: 'bar',
+            data: {
+                labels: monthsLabels,
+                datasets: [{ label: 'Órdenes', data: monthsData, backgroundColor: 'rgba(54, 162, 235, 0.6)' }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // Users bar chart
+        const ctxUsers = document.getElementById('chart-users').getContext('2d');
+        new Chart(ctxUsers, {
+            type: 'bar',
+            data: { labels: userLabels, datasets: [{ label: 'Órdenes', data: userData, backgroundColor: 'rgba(255, 159, 64, 0.7)' }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // Status doughnut
+        const ctxStatus = document.getElementById('chart-status').getContext('2d');
+        new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: { labels: statusLabels, datasets: [{ data: statusData, backgroundColor: ['#f6c23e','#36a2eb','#1cc88a'] }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    </script>
 </div>
 {% endblock %}

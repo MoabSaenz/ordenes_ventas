@@ -19,10 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingForm = null;
 
     if (confirmModalElement && confirmModalForm && confirmModalMessage && confirmModalAccept) {
-        const confirmModal = new bootstrap.Modal(confirmModalElement, {
-            backdrop: 'static',
-            keyboard: false,
-        });
+        // Use default Bootstrap behavior so backdrop and ESC close the modal correctly
+        const confirmModal = new bootstrap.Modal(confirmModalElement);
 
         document.querySelectorAll('form[data-confirm]').forEach((confirmFormElement) => {
             confirmFormElement.addEventListener('submit', (event) => {
@@ -61,3 +59,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Initialize DataTables for all tables (5 rows per page, ordering enabled)
+if (window.jQuery) {
+    (function($){
+        $(function(){
+            if ($.fn && $.fn.dataTable) {
+                $('table.datatable').each(function(){
+                    if (!$.fn.DataTable.isDataTable(this)) {
+                        $(this).DataTable({
+                            pageLength: 5,
+                            lengthChange: false,
+                            ordering: true,
+                            language: {
+                                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    })(jQuery);
+}

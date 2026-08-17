@@ -187,7 +187,7 @@
                                                 </td>
                                                 <td class="text-end">
                                                     <div class="btn-group btn-group-sm" role="group">
-                                                        <a href="{% url 'editar_orden' orden.id %}" class="btn btn-outline-primary">Ver detalles</a>
+                                                        <a href="{% url 'ver_orden' orden.id %}" class="btn btn-outline-primary">Ver detalles</a>
                                                         {% if puede_eliminar %}
                                                         <button type="button" class="btn btn-outline-danger confirm-delete-btn" data-action="{% url 'eliminar_orden' orden.id %}" data-item="orden {{ orden.numero_orden }}">Eliminar</button>
                                                         {% endif %}
@@ -234,29 +234,9 @@
             </div>
         </div>
     </div>
+0
+    {# Modal moved to base.html to avoid duplicates #}
 
-    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmModalLabel">Confirmar acción</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="confirm-modal-message mb-4">¿Deseas continuar?</p>
-                    <form id="confirmModalForm" method="post" action="">
-                        {% csrf_token %}
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger confirm-modal-accept">Confirmar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="{% static 'script.js' %}"></script>
 </body>
 </html>
 

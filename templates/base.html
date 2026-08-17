@@ -7,6 +7,7 @@
     {% load static %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
 <body class="bg-light">
 
@@ -25,13 +26,13 @@
                 <p class="text-muted small mb-0">Control de órdenes</p>
             </div>
             <nav class="nav flex-column p-3 gap-2">
-                <a class="btn btn-outline-primary text-start w-100" href="{% url 'dashboard' %}">Inicio</a>
-                <a class="btn btn-outline-primary text-start w-100" href="{% url 'home' %}">Captura de datos</a>
+                <a class="{% if request.resolver_match.url_name == 'dashboard' %}btn btn-primary{% else %}btn btn-outline-primary{% endif %} text-start w-100" href="{% url 'dashboard' %}">Inicio</a>
+                <a class="{% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'editar_orden' or request.resolver_match.url_name == 'ver_orden' %}btn btn-primary{% else %}btn btn-outline-primary{% endif %} text-start w-100" href="{% url 'home' %}">Captura de datos</a>
                 {% if user.is_superuser or perms.auth.change_user %}
-                    <a class="btn btn-outline-primary text-start w-100" href="{% url 'gestion_usuarios' %}">Usuarios</a>
-                    <a class="btn btn-outline-primary text-start w-100" href="{% url 'actividad' %}">Actividad</a>
+                    <a class="{% if request.resolver_match.url_name == 'gestion_usuarios' %}btn btn-primary{% else %}btn btn-outline-primary{% endif %} text-start w-100" href="{% url 'gestion_usuarios' %}">Usuarios</a>
+                    <a class="{% if request.resolver_match.url_name == 'actividad' %}btn btn-primary{% else %}btn btn-outline-primary{% endif %} text-start w-100" href="{% url 'actividad' %}">Actividad</a>
                 {% endif %}
-                <a class="btn btn-outline-primary text-start w-100" href="{% url 'reportes' %}">Reportes</a>
+                <a class="{% if request.resolver_match.url_name == 'reportes' %}btn btn-primary{% else %}btn btn-outline-primary{% endif %} text-start w-100" href="{% url 'reportes' %}">Reportes</a>
             </nav>
             <div class="sidebar-footer p-4 border-top mt-auto">
                 <div class="mb-2 text-muted small">Conectado como</div>
@@ -41,6 +42,50 @@
         </aside>
 
         <main class="flex-grow-1 p-4 main-content">
+            {% if messages %}
+                <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index:1080;">
+                    {% for message in messages %}
+                        {% if message.tags == 'error' %}
+                            <div class="toast text-bg-danger mb-2" role="status" aria-live="polite" aria-atomic="true">
+                                <div class="d-flex align-items-center">
+                                    <div class="toast-body">{{ message }}</div>
+                                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+                                </div>
+                            </div>
+                        {% elif message.tags == 'warning' %}
+                            <div class="toast text-bg-warning mb-2" role="status" aria-live="polite" aria-atomic="true">
+                                <div class="d-flex align-items-center">
+                                    <div class="toast-body">{{ message }}</div>
+                                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+                                </div>
+                            </div>
+                        {% elif message.tags == 'success' %}
+                            <div class="toast text-bg-success mb-2" role="status" aria-live="polite" aria-atomic="true">
+                                <div class="d-flex align-items-center">
+                                    <div class="toast-body">{{ message }}</div>
+                                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="toast bg-light mb-2" role="status" aria-live="polite" aria-atomic="true">
+                                <div class="d-flex align-items-center">
+                                    <div class="toast-body">{{ message }}</div>
+                                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+                        toastElList.forEach(function (toastEl) {
+                            var t = new bootstrap.Toast(toastEl, { delay: 4000 });
+                            t.show();
+                        });
+                    });
+                </script>
+            {% endif %}
             {% block content %}{% endblock %}
         </main>
     </div>
@@ -82,6 +127,30 @@
             });
         })();
     </script>
+    {# Shared confirmation modal to avoid multiple instances that can leave a backdrop behind #}
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">Confirmar acción</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="confirm-modal-message mb-4">¿Desea continuar?</p>
+                    <form id="confirmModalForm" method="post" action="">
+                        {% csrf_token %}
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger confirm-modal-accept">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'script.js' %}"></script>
 </body>
