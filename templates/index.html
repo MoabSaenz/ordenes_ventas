@@ -162,32 +162,52 @@
                                 <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
                             </div>
                             <div class="table-responsive">
-                                <table class="table align-middle mb-0">
+                                <table class="table align-middle mb-0 table-sm">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>Orden</th>
-                                            <th>Usuario</th>
-                                            <th>Fecha</th>
-                                            <th>Fecha factura</th>
+                                            <th>Número</th>
+                                            <th class="d-none d-md-table-cell">Usuario</th>
+                                            <th>Fecha inicio</th>
+                                            <th class="d-none d-md-table-cell">Estatus</th>
+                                            <th class="d-none d-md-table-cell">Fecha término</th>
                                             <th>Factura</th>
-                                            <th>Estatus</th>
                                             <th class="text-end">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for orden in ordenes %}
                                             <tr>
-                                                <td><strong>{{ orden.numero_orden }}</strong><br><small class="text-muted">{{ orden.descripcion|truncatechars:40 }}</small></td>
-                                                <td>{{ orden.usuario }}</td>
+                                                <td><strong>{{ orden.numero_orden }}</strong></td>
+                                                <td class="d-none d-md-table-cell">{{ orden.usuario }}</td>
                                                 <td>{{ orden.fecha|default:'-' }}</td>
-                                                <td>{{ orden.fecha_factura|default:'-' }}</td>
-                                                <td>{{ orden.factura|default:'-' }}</td>
-                                                <td>
-                                                    <span class="badge rounded-pill bg-light text-dark badge-status {% if orden.estatus == 'proceso' %}proceso{% elif orden.estatus == 'completo' %}completo{% endif %}">{{ orden.estatus|capfirst }}</span>
+                                                <td class="d-none d-md-table-cell">
+                                                    {% if orden.estatus == 'completo' %}
+                                                        <span class="badge bg-success">Completo</span>
+                                                    {% elif orden.estatus == 'proceso' %}
+                                                        <span class="badge bg-warning text-dark">En proceso</span>
+                                                    {% elif orden.estatus == 'pendiente' %}
+                                                        <span class="badge bg-secondary">Pendiente</span>
+                                                    {% else %}
+                                                        {{ orden.estatus|default:'-' }}
+                                                    {% endif %}
                                                 </td>
+                                                <td class="d-none d-md-table-cell">{{ orden.fecha_termino|default:'-' }}</td>
+                                                <td>{{ orden.factura|default:'-' }}</td>
                                                 <td class="text-end">
                                                     <div class="btn-group btn-group-sm" role="group">
-                                                        <a href="{% url 'ver_orden' orden.id %}" class="btn btn-outline-primary">Ver detalles</a>
+                                                        <button type="button" class="btn btn-outline-primary details-btn" 
+                                                            data-bs-toggle="modal" data-bs-target="#detailsModal"
+                                                            data-id="{{ orden.id }}"
+                                                            data-numero="{{ orden.numero_orden }}"
+                                                            data-usuario="{{ orden.usuario }}"
+                                                            data-fecha="{{ orden.fecha|default:'' }}"
+                                                            data-fecha-termino="{{ orden.fecha_termino|default:'' }}"
+                                                            data-fecha-factura="{{ orden.fecha_factura|default:'' }}"
+                                                            data-factura="{{ orden.factura|default:'' }}"
+                                                            data-estatus="{{ orden.estatus }}"
+                                                            data-descripcion="{{ orden.descripcion|escapejs }}"
+                                                            data-comentarios="{{ orden.comentarios|escapejs }}"
+                                                            data-pdf="{% if orden.pdf %}{{ orden.pdf.url }}{% endif %}">Ver detalles</button>
                                                         {% if puede_eliminar %}
                                                         <button type="button" class="btn btn-outline-danger confirm-delete-btn" data-action="{% url 'eliminar_orden' orden.id %}" data-item="orden {{ orden.numero_orden }}">Eliminar</button>
                                                         {% endif %}

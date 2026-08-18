@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .models import Orden
 from .decorators import has_permission
+from django.http import JsonResponse, HttpResponseBadRequest
 
 
 def user_role_hint(user):
@@ -181,3 +182,35 @@ def eliminar_orden(request, orden_id):
         orden = get_object_or_404(Orden, pk=orden_id)
         orden.delete()
     return redirect('home')
+
+
+@login_required
+@has_permission('ordenes.can_edit_order')
+def editar_orden_modal(request, orden_id):
+    """Serve a minimal form fragment for editing inside a modal and accept AJAX POST updates."""
+    orden = get_object_or_404(Orden, pk=orden_id)
+    if request.method == 'GET':
+        return render(request, 'partials/orden_form_modal.html', {'orden': orden})
+
+    # POST — handle AJAX form submission
+    if request.method == 'POST':
+        try:
+            orden.usuario = request.POST.get('usuario', '').strip()
+            orden.numero_orden = request.POST.get('orden', '').strip()
+            orden.fecha = request.POST.get('fecha') or None
+            orden.fecha_factura = request.POST.get('fecha_factura') or None
+            orden.descripcion = request.POST.get('descripcion', '').strip()
+            orden.estatus = request.POST.get('estatus', 'pendiente')
+            orden.fecha_termino = request.POST.get('fecha_termino') or None
+            orden.factura = int(request.POST.get('factura', 0)) if request.POST.get('factura') else None
+            orden.comentarios = request.POST.get('comentarios', '').strip()
+            if request.FILES.get('pdf'):
+                orden.pdf = request.FILES.get('pdf')
+            orden.save()
+            return JsonResponse({'ok': True})
+        except ValueError:
+            return JsonResponse({'ok': False, 'error': 'La factura debe ser numérica.'}, status=400)
+        except Exception as exc:
+            return JsonResponse({'ok': False, 'error': str(exc)}, status=500)
+
+    return HttpResponseBadRequest()

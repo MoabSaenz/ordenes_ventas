@@ -10,6 +10,9 @@ def log_save(sender, instance, created, **kwargs):
     # Only log models from this app
     if sender._meta.app_label != 'ordenes':
         return
+    # Avoid logging ActivityLog to prevent recursion
+    if sender.__name__ == 'ActivityLog':
+        return
     user = get_current_user()
     action = 'create' if created else 'update'
     ActivityLog.objects.create(

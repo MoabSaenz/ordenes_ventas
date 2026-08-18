@@ -20,7 +20,8 @@ def load_env_file(path):
         if not line or line.startswith('#') or '=' not in line:
             continue
         key, value = line.split('=', 1)
-        os.environ.setdefault(key.strip(), value.strip())
+        # In development prefer values from .env.local; overwrite existing env vars
+        os.environ[key.strip()] = value.strip()
 
 
 # Load local .env if present (development convenience)
@@ -30,7 +31,15 @@ load_env_file(BASE_DIR / '..' / '.env.local')
 # SECURITY
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key')
 DEBUG = os.getenv('DEBUG', 'True') in ('True', 'true', '1')
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+_raw_allowed = os.getenv('ALLOWED_HOSTS')
+if not _raw_allowed or not _raw_allowed.strip():
+    _raw_allowed = 'localhost,127.0.0.1,192.168.100.20,sistema'
+ALLOWED_HOSTS = [h.strip() for h in _raw_allowed.split(',') if h.strip()]
+
+# If DEBUG is False and ALLOWED_HOSTS is empty, provide a safe default
+if not DEBUG and not ALLOWED_HOSTS:
+    # In production you should set ALLOWED_HOSTS via env; default to localhost to avoid runserver errors
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Applications

@@ -1,0 +1,51 @@
+<form id="modal-edit-form" method="post" enctype="multipart/form-data" action="{% url 'editar_orden_modal' orden.id %}">
+    {% csrf_token %}
+    <div class="mb-2">
+        <label class="form-label">Usuario</label>
+        <input type="text" class="form-control form-control-sm" name="usuario" value="{{ orden.usuario }}" required>
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Número de orden</label>
+        <input type="text" class="form-control form-control-sm" name="orden" value="{{ orden.numero_orden }}" required>
+    </div>
+    <div class="row g-2">
+        <div class="col-6">
+            <label class="form-label">Fecha</label>
+            <input type="date" class="form-control form-control-sm" name="fecha" value="{{ orden.fecha|default:'' }}">
+        </div>
+        <div class="col-6">
+            <label class="form-label">Fecha factura</label>
+            <input type="date" class="form-control form-control-sm" name="fecha_factura" value="{{ orden.fecha_factura|default:'' }}">
+        </div>
+    </div>
+    <div class="row g-2 mt-2">
+        <div class="col-6">
+            <label class="form-label">Fecha término</label>
+            <input type="date" class="form-control form-control-sm" name="fecha_termino" value="{{ orden.fecha_termino|default:'' }}">
+        </div>
+        <div class="col-6">
+            <label class="form-label">Factura</label>
+            <input type="number" class="form-control form-control-sm" name="factura" value="{{ orden.factura|default:'' }}">
+        </div>
+    </div>
+    <div class="mb-2 mt-2">
+        <label class="form-label">Descripción</label>
+        <input type="text" class="form-control form-control-sm" name="descripcion" value="{{ orden.descripcion }}">
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Estatus</label>
+        <select class="form-select form-select-sm" name="estatus">
+            <option value="pendiente" {% if orden.estatus == 'pendiente' %}selected{% endif %}>Pendiente</option>
+            <option value="proceso" {% if orden.estatus == 'proceso' %}selected{% endif %}>En proceso</option>
+            <option value="completo" {% if orden.estatus == 'completo' %}selected{% endif %}>Completo</option>
+        </select>
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Comentarios</label>
+        <textarea class="form-control form-control-sm" name="comentarios" rows="2">{{ orden.comentarios }}</textarea>
+    </div>
+    <div class="mb-2">
+        <label class="form-label">Adjuntar PDF (opcional)</label>
+        <input type="file" class="form-control form-control-sm" name="pdf" accept="application/pdf">
+    </div>
+</form>
