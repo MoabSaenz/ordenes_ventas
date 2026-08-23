@@ -29,6 +29,7 @@ staticfiles/
 .coverage
 htmlcov/
 .pytest_cache/
+test_toggle.html
 
 # Editors and IDEs
 .vscode/

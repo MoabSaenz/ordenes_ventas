@@ -1,0 +1,255 @@
+/* ============================================
+   MODO OSCURO - TEMA GLOBAL
+   ============================================ */
+
+:root {
+  --graphite-800: #1f2933;
+}
+
+/* Colores en modo oscuro */
+html[data-theme="dark"] {
+  --bg: #0d141b;
+  --surface: #1a2430;
+  --border: #2c3a47;
+  --text: #edf5ff;
+  --text-muted: #a8bed5;
+
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #242424;
+  --bg-tertiary: #2f2f2f;
+
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-tertiary: #808080;
+
+  --border-color: #404040;
+  --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.5);
+  --card-border: #404040;
+
+  --primary-color: #4a9eff;
+  --success-color: #5cb85c;
+  --danger-color: #ff6b6b;
+  --warning-color: #ffd666;
+  --info-color: #61dafb;
+
+  --button-hover-bg: #0056b3;
+  --input-bg: #2f2f2f;
+  --input-border: #404040;
+  --input-focus-border: #4a9eff;
+
+  --graphite-900: #0d1117;
+  --graphite-800: #162230;
+  --graphite-700: #233246;
+  --steel-600: #6ea8e6;
+  --steel-700: #8abdf0;
+  --steel-100: #122332;
+  --amber-500: #f4b15a;
+  --amber-600: #d98a32;
+  --amber-100: #2d1f11;
+  --success-500: #53c77c;
+  --success-100: rgba(83, 199, 124, 0.12);
+  --danger-500: #ff7b7b;
+  --danger-100: rgba(255, 123, 123, 0.12);
+
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] body {
+  background:
+    radial-gradient(1200px 600px at 100% -10%, rgba(110, 168, 230, 0.12) 0%, transparent 55%),
+    var(--bg) !important;
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6,
+html[data-theme="dark"] p,
+html[data-theme="dark"] span,
+html[data-theme="dark"] label,
+html[data-theme="dark"] td,
+html[data-theme="dark"] th,
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] .text-secondary {
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .dropdown-menu,
+html[data-theme="dark"] .table,
+html[data-theme="dark"] .table-responsive {
+  background-color: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] .card .text-muted,
+html[data-theme="dark"] .card h2.h6.text-muted,
+html[data-theme="dark"] .sidebar-header p,
+html[data-theme="dark"] .sidebar-footer .text-muted {
+  color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select,
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  background-color: var(--bg-primary) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] .table thead th,
+html[data-theme="dark"] .table tbody td,
+html[data-theme="dark"] .table tbody tr {
+  background-color: transparent !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] .toast {
+  background-color: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+/* ============================================
+   TOGGLE SWITCH PROFESIONAL - TEMA OSCURO/CLARO
+   ============================================ */
+
+.theme-toggle-switch {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2000;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.2s ease;
+}
+
+.theme-toggle-switch:hover {
+  transform: scale(1.05);
+}
+
+.theme-toggle-switch:focus {
+  outline: 2px solid rgba(74, 158, 255, 0.5);
+  outline-offset: 2px;
+  border-radius: 999px;
+}
+
+.toggle-track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 32px;
+  background: linear-gradient(135deg, #ffd666 0%, #ffb84d 100%);
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+/* Estado modo oscuro */
+html[data-theme="dark"] .toggle-track {
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-slider {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+/* Slider en modo oscuro (se desliza hacia la derecha) */
+html[data-theme="dark"] .toggle-slider {
+  left: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.toggle-icon {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: opacity 0.3s ease;
+  top: 6px;
+}
+
+.toggle-sun {
+  left: 8px;
+  color: #f4b15a;
+  opacity: 1;
+}
+
+.toggle-moon {
+  right: 8px;
+  color: #4a7fc4;
+  opacity: 0.3;
+}
+
+/* Iconos en modo oscuro */
+html[data-theme="dark"] .toggle-sun {
+  opacity: 0.3;
+  color: #f4b15a;
+}
+
+html[data-theme="dark"] .toggle-moon {
+  opacity: 1;
+  color: #e0e6ed;
+}
+
+/* Responsive en móvil */
+@media (max-width: 767.98px) {
+  .theme-toggle-switch {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .toggle-track {
+    width: 52px;
+    height: 28px;
+  }
+
+  .toggle-slider {
+    width: 24px;
+    height: 24px;
+  }
+
+  html[data-theme="dark"] .toggle-slider {
+    left: 26px;
+  }
+
+  .toggle-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+  }
+
+  .toggle-sun {
+    left: 6px;
+  }
+
+  .toggle-moon {
+    right: 6px;
+  }
+}

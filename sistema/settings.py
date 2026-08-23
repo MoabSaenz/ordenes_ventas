@@ -33,7 +33,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key')
 DEBUG = os.getenv('DEBUG', 'True') in ('True', 'true', '1')
 _raw_allowed = os.getenv('ALLOWED_HOSTS')
 if not _raw_allowed or not _raw_allowed.strip():
-    _raw_allowed = 'localhost,127.0.0.1,192.168.100.20,sistema'
+    _raw_allowed = 'localhost,127.0.0.1,0.0.0.0,192.168.100.20,sistema'
 ALLOWED_HOSTS = [h.strip() for h in _raw_allowed.split(',') if h.strip()]
 
 # If DEBUG is False and ALLOWED_HOSTS is empty, provide a safe default
@@ -57,6 +57,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -119,6 +120,7 @@ USE_TZ = True
 
 # Static & media
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / '..' / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / '..' / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / '..' / 'media'
