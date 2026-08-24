@@ -21,17 +21,12 @@ class Command(BaseCommand):
                 'add_orden',
                 'change_orden',
                 'delete_orden',
-                'can_create_order',
-                'can_edit_order',
-                'can_delete_order',
-                'can_view_all_orders',
                 'change_user',
             ],
             'capturista': [
                 'view_orden',
                 'add_orden',
-                'can_create_order',
-                'can_edit_order',
+                'change_orden',
             ],
             'lector': [
                 'view_orden',

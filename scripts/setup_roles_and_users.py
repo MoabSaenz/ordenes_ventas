@@ -23,8 +23,8 @@ def setup_roles():
     lector_group, _ = Group.objects.get_or_create(name='lector')
 
     perms = {
-        'admin': ['view_orden', 'add_orden', 'change_orden', 'delete_orden', 'can_create_order', 'can_edit_order', 'can_delete_order', 'can_view_all_orders'],
-        'capturista': ['view_orden', 'add_orden', 'can_create_order', 'can_edit_order'],
+        'admin': ['view_orden', 'add_orden', 'change_orden', 'delete_orden'],
+        'capturista': ['view_orden', 'add_orden', 'change_orden'],
         'lector': ['view_orden'],
     }
 

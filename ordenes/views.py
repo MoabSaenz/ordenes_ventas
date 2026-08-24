@@ -13,9 +13,9 @@ def user_role_hint(user):
     """Optional helper: small role hint for backwards compatibility in templates."""
     if user.is_superuser or user.groups.filter(name='admin').exists():
         return 'admin'
-    if user.has_perm('ordenes.can_create_order') and user.has_perm('ordenes.can_edit_order'):
+    if user.groups.filter(name='capturista').exists():
         return 'capturista'
-    if user.has_perm('ordenes.can_view_all_orders'):
+    if user.groups.filter(name='lector').exists():
         return 'lector'
     return None
 
@@ -26,10 +26,14 @@ def home(request):
     error = None
     # Permission flags for templates and logic
     role = user_role_hint(request.user)
-    puede_crear = request.user.has_perm('ordenes.can_create_order')
-    puede_editar = request.user.has_perm('ordenes.can_edit_order')
-    puede_eliminar = request.user.has_perm('ordenes.can_delete_order')
-    puede_ver_todas = request.user.has_perm('ordenes.can_view_all_orders')
+    puede_crear = request.user.has_perm('ordenes.add_orden')
+    puede_editar = request.user.has_perm('ordenes.change_orden')
+    puede_eliminar = request.user.has_perm('ordenes.delete_orden')
+    puede_ver_todas = (
+        request.user.is_superuser
+        or request.user.groups.filter(name='admin').exists()
+        or request.user.has_perm('ordenes.can_view_all_orders')
+    )
     # Filtrar órdenes según permiso
     ordenes_qs = Orden.objects.order_by('-creado_en')
     # Permitir visualización a capturistas y lectores (solo lectura), o a quienes tengan permiso global
@@ -123,11 +127,11 @@ def home(request):
 
 
 @login_required
-@has_permission('ordenes.can_edit_order')
+@has_permission('ordenes.change_orden')
 def editar_orden(request, orden_id):
     orden = get_object_or_404(Orden, pk=orden_id)
     role = user_role_hint(request.user)
-    if not request.user.has_perm('ordenes.can_edit_order'):
+    if not request.user.has_perm('ordenes.change_orden'):
         messages.error(request, 'No tienes permisos para editar órdenes.')
         return redirect('home')
     ordenes = Orden.objects.order_by('-creado_en')
@@ -152,21 +156,21 @@ def editar_orden(request, orden_id):
         except Exception as exc:
             error = f'Error inesperado: {exc}'
 
-        return render(request, 'index.html', {'orden': orden, 'ordenes': ordenes, 'editando': True, 'error': error, 'role': role, 'puede_crear': True, 'puede_editar': True, 'puede_eliminar': role == 'admin'})
+        return render(request, 'index.html', {'orden': orden, 'ordenes': ordenes, 'editando': True, 'error': error, 'role': role, 'puede_crear': request.user.has_perm('ordenes.add_orden'), 'puede_editar': True, 'puede_eliminar': request.user.has_perm('ordenes.delete_orden')})
 
-    return render(request, 'index.html', {'orden': orden, 'ordenes': ordenes, 'editando': True, 'role': role, 'puede_crear': True, 'puede_editar': True, 'puede_eliminar': request.user.has_perm('ordenes.can_delete_order')})
+    return render(request, 'index.html', {'orden': orden, 'ordenes': ordenes, 'editando': True, 'role': role, 'puede_crear': request.user.has_perm('ordenes.add_orden'), 'puede_editar': True, 'puede_eliminar': request.user.has_perm('ordenes.delete_orden')})
 
 
 @login_required
 def ver_orden(request, orden_id):
     orden = get_object_or_404(Orden, pk=orden_id)
     # Permitir ver si es superusuario, tiene permiso global de ver todas, o es propietario
-    if not (request.user.is_superuser or request.user.has_perm('ordenes.can_view_all_orders') or orden.usuario == request.user.username):
+    if not (request.user.is_superuser or request.user.groups.filter(name='admin').exists() or request.user.has_perm('ordenes.can_view_all_orders') or orden.usuario == request.user.username):
         messages.error(request, 'No tienes permisos para ver esta orden.')
         return redirect('home')
 
-    can_edit = request.user.has_perm('ordenes.can_edit_order')
-    can_delete = request.user.has_perm('ordenes.can_delete_order')
+    can_edit = request.user.has_perm('ordenes.change_orden')
+    can_delete = request.user.has_perm('ordenes.delete_orden')
 
     return render(request, 'ver_orden.html', {
         'orden': orden,
@@ -176,7 +180,7 @@ def ver_orden(request, orden_id):
 
 
 @login_required
-@has_permission('ordenes.can_delete_order')
+@has_permission('ordenes.delete_orden')
 def eliminar_orden(request, orden_id):
     if request.method == 'POST':
         orden = get_object_or_404(Orden, pk=orden_id)
@@ -185,7 +189,7 @@ def eliminar_orden(request, orden_id):
 
 
 @login_required
-@has_permission('ordenes.can_edit_order')
+@has_permission('ordenes.change_orden')
 def editar_orden_modal(request, orden_id):
     """Serve a minimal form fragment for editing inside a modal and accept AJAX POST updates."""
     orden = get_object_or_404(Orden, pk=orden_id)
